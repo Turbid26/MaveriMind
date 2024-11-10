@@ -123,7 +123,7 @@ def chat_with_ai():
         # Encode the new user input, add the eos_token and return a tensor in Pytorch
         new_user_input_ids = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors='pt')
 
-        # Append the new user input tokens to the chat history
+        # Append the new user input tokens to  the chat history
         bot_input_ids = new_user_input_ids
 
         # Generate a response from the model
@@ -327,6 +327,28 @@ def consultation_requests():
         consultations = cur.fetchall()
     
     return render_template('consultation_requests.html', consultations=consultations)
+
+@app.route('/consultations')
+def consultations():
+    user_email = session['email']
+    role = session.get('role', None)
+
+    
+        # Fetch ongoing consultations for the logged-in patient
+    query = '''
+        SELECT u.fname, t.fname, c.date
+            FROM Consultations c ,Users u
+            JOIN Therapists t ON t.id = c.therapist_id
+            WHERE u.therapist_id = t.id
+        '''
+
+    # Query the database for ongoing consultations
+    with sqlite3.connect('healthcare.db') as conn:
+        cur = conn.cursor()
+        cur.execute(query)
+        consultations = cur.fetchall()
+
+    return render_template('consultation.html', consultations=consultations)
 
 
 def get_therapist_by_id(therapist_id):

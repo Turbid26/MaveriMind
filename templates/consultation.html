@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Ongoing Consultations</h1>
+
+    {% if consultations %}
+        <ul class="list-group">
+            {% for consultation in consultations %}
+                <li class="list-group-item">
+                    <p><strong>Consultation with:</strong> {{ consultation[1] }} {{ consultation[2] }}</p>
+                    <p><strong>Date:</strong> {{ consultation[3] }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No ongoing consultations.</p>
+    {% endif %}
+{% endblock %}
