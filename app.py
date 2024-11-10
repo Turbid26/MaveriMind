@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 import bcrypt
 import sqlite3
 from flask_session import Session
-
+from datetime import datetime
 from db import init_db
 
 app = Flask(__name__)
@@ -17,39 +17,37 @@ Session(app)
 def index():
     return render_template('/index.html')
 
+from datetime import datetime
+
 @app.route('/home')
 def home():
     if 'email' not in session:
         return redirect('/user_login')
-
+    
     role = session.get('role')
-    user_id = session.get('user_id')
+    if role is None:
+        flash('Role is not defined. Please log in again.', 'danger')
+        return redirect('/user_login')
+
+    # Get the current date in the correct format
+    current_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    ongoing_consultation = None
+    upcoming_consultations = None
 
     if role == 'Patient':
-        # Fetch ongoing consultation
         with sqlite3.connect('healthcare.db') as conn:
             cur = conn.cursor()
-            cur.execute('''SELECT c.progress, c.status, t.fname || " " || t.lname as therapist_name 
-                           FROM Consultations c 
-                           JOIN Therapists t ON c.therapist_id = t.id 
-                           WHERE c.patient_id = ? AND c.status = 'Ongoing' 
-                           ORDER BY c.start_date DESC''', (user_id,))
+            cur.execute('SELECT * FROM Consultations WHERE patient_id = ? AND status = "Ongoing"', (get_user_id_from_email(session['email']),))
             ongoing_consultation = cur.fetchone()
 
-        return render_template('home.html', ongoing_consultation=ongoing_consultation)
-
     elif role == 'Therapist':
-        # Fetch upcoming consultations
         with sqlite3.connect('healthcare.db') as conn:
             cur = conn.cursor()
-            cur.execute('''SELECT u.fname || " " || u.lname as patient_name, c.start_date as date 
-                           FROM Consultations c 
-                           JOIN Users u ON c.patient_id = u.user_id 
-                           WHERE c.therapist_id = ? AND c.status = 'Upcoming'
-                           ORDER BY c.start_date ASC''', (user_id,))
+            cur.execute('SELECT * FROM Consultations WHERE therapist_id = ? AND date >= ? ORDER BY date ASC', (get_therapist_id_from_email(session['email']), current_date))
             upcoming_consultations = cur.fetchall()
 
-        return render_template('home.html', upcoming_consultations=upcoming_consultations)
+    return render_template('home.html', ongoing_consultation=ongoing_consultation, upcoming_consultations=upcoming_consultations)
 
 
 @app.route('/user_signup', methods=['GET', 'POST'])
@@ -104,6 +102,7 @@ def user_login():
                 
                 
                 flash('Login successful!', 'success')
+                session['role'] = 'Patient'
                 return redirect('/home')  # Redirect to home page
             else:
                 flash('Invalid credentials. Please try again.', 'danger')
@@ -124,6 +123,7 @@ def t_login():
             if data and bcrypt.checkpw(password, data[0]):
                 session['email'] = email
                 flash('Login successful!', 'success')
+                session['role'] = 'Therapist'
                 return redirect('/home')
             else:
                 flash('Invalid credentials. Please try again.', 'danger')
@@ -366,6 +366,29 @@ def logout():
     # Redirect to the login page or home page
     return redirect(url_for('index'))  # Redirect to login page (or home page)
 
+def get_user_id_from_email(email):
+    # Connect to the SQLite database
+    with sqlite3.connect('healthcare.db') as conn:
+        cur = conn.cursor()
+        # Query to get the user_id based on the email
+        cur.execute('SELECT user_id FROM Users WHERE email = ?', (email,))
+        result = cur.fetchone()  # Fetch the first matching row
+        if result:
+            return result[0]  # Return the user_id
+        else:
+            return None
+        
+def get_therapist_id_from_email(email):
+    # Connect to the SQLite database
+    with sqlite3.connect('healthcare.db') as conn:
+        cur = conn.cursor()
+        # Query to get the therapist_id based on the email
+        cur.execute('SELECT id FROM Therapists WHERE email = ?', (email,))
+        result = cur.fetchone()  # Fetch the first matching row
+        if result:
+            return result[0]  # Return the therapist_id
+        else:
+            return None
 
 if __name__ == '__main__':
     init_db()

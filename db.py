@@ -46,7 +46,7 @@ def init_db():
                 patient_id INTEGER,
                 therapist_id INTEGER,
                 status TEXT CHECK(status IN ('Ongoing', 'Upcoming')) NOT NULL,
-                start_date DATE,
+                date TEXT,
                 progress INTEGER CHECK(progress >= 0 AND progress <= 100),
                 FOREIGN KEY (patient_id) REFERENCES Users(user_id),
                 FOREIGN KEY (therapist_id) REFERENCES Therapists(id)
