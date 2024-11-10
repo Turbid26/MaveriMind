@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ therapist.fname | upper }} {{ therapist.lname | upper }}</h1>
+
+    <div class="therapist-details">
+        <p><strong>Experience:</strong> {{ therapist.exp }} years</p>
+        <p><strong>Qualifications:</strong> {{ therapist.qualifications }}</p>
+    </div>
+
+    <form action="{{ url_for('therapist_detail', therapist_id=therapist.id) }}" method="POST">
+        <button type="submit" class="btn btn-primary mt-3">Book Consultation</button>
+    </form>
+
+    <a href="{{ url_for('therapists') }}" class="btn btn-secondary mt-3">Back to Therapists List</a>
+{% endblock %}

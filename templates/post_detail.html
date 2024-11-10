@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Post Details</h1>
+        <p>{{ post[0] }}</p>
+
+        <h3 class="mt-4">Comments</h3>
+        <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item">{{ comment[0] }}</li>
+            {% endfor %}
+        </ul>
+
+        <form method="POST" class="mt-3">
+            <div class="mb-3">
+                <textarea class="form-control" name="comment_text" placeholder="Write a comment..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-secondary">Comment</button>
+        </form>
+    </div>
+</body>
+</html>

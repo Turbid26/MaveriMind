@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Chat with AI</h2>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="user_input">Your Message:</label>
+                <textarea class="form-control" id="user_input" name="user_input" rows="3" required>{{ request.form.get('user_input', '') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Send</button>
+        </form>
+
+        {% if severity is not none %}
+            <div class="mt-4">
+                <h4>Sentiment: 
+                    {% if severity == 5 %}
+                        Neutral
+                    {% elif severity < 5 %}
+                        Positive
+                    {% else %}
+                        Negative
+                    {% endif %}
+                </h4>
+                <h5>Severity Level: {{ severity }}</h5>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

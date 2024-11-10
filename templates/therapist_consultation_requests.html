@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Consultation Requests</h1>
+
+    <ul>
+        {% for consultation in consultations %}
+            <li>
+                <strong>Patient:</strong> {{ consultation.fname }} {{ consultation.lname }}<br>
+                <strong>Status:</strong> {{ consultation.status }}<br>
+
+                {% if consultation.status == 'Upcoming' %}
+                    <form action="{{ url_for('therapist_consultation_requests', therapist_id=therapist_id) }}" method="POST">
+                        <input type="hidden" name="consultation_id" value="{{ consultation.consultation_id }}">
+                        <button type="submit" name="action" value="accept" class="btn btn-success">Accept</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('therapists') }}" class="btn btn-secondary mt-3">Back to Therapists List</a>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Therapists</h1>
+
+    <div class="search-bar mb-3">
+        <input type="text" id="searchInput" placeholder="Search by name or qualifications..." onkeyup="filterTherapists()" class="form-control" />
+    </div>
+
+    <ul class="therapist-list list-group" id="therapistList">
+        {% for therapist in therapists %}
+            <li class="therapist-item list-group-item mb-2">
+                <a href="{{ url_for('therapist_detail', therapist_id=therapist.id) }}" style="text-decoration: none; color: inherit;">
+                    <div class="therapist-name" style="font-size: 1.5rem; font-weight: bold;">
+                        {{ therapist.fname | upper }} {{ therapist.lname | upper }}
+                    </div>
+                    <div class="therapist-details" style="font-size: 0.9rem; color: #555;">
+                        <p><strong>Experience:</strong> {{ therapist.exp }} years</p>
+                        <p><strong>Qualifications:</strong> {{ therapist.qualifications }}</p>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        function filterTherapists() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const therapistList = document.getElementById('therapistList');
+            const therapists = therapistList.getElementsByTagName('li');
+
+            for (let i = 0; i < therapists.length; i++) {
+                const name = therapists[i].getElementsByClassName('therapist-name')[0].textContent.toLowerCase();
+                const qualifications = therapists[i].getElementsByClassName('therapist-details')[0].textContent.toLowerCase();
+
+                if (name.includes(input) || qualifications.includes(input)) {
+                    therapists[i].style.display = '';
+                } else {
+                    therapists[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+{% endblock %}

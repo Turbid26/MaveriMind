@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Healthcare App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if session['role'] == 'Patient' %}
+                    <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/therapists">Therapists</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/consultations">Ongoing Consultation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/chat_with_ai">Chat with AI</a></li>
+                    {% elif session['role'] == 'Therapist' %}
+                    <li class="nav-item"><a class="nav-link" href="/forum">Forum</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/consultations">Upcoming Consultations</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Welcome to the Home Page</h1>
+
+        {% if session['role'] == 'Patient' %}
+            <!-- Display Ongoing Consultation for Patients -->
+            <div class="row">
+                <div class="col-12">
+                    <h3>Ongoing Consultation</h3>
+                    {% if ongoing_consultation %}
+                        <div>
+                            <p>Therapist: {{ ongoing_consultation['therapist_name'] }}</p>
+                            <p>Status: {{ ongoing_consultation['status'] }}</p>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ ongoing_consultation['progress'] }}" aria-valuenow="{{ ongoing_consultation['progress'] }}" aria-valuemin="0" aria-valuemax="100">{{ ongoing_consultation['progress'] }}%</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>You don't have any ongoing consultation.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% elif session['role'] == 'Therapist' %}
+            <!-- Display Upcoming Consultations for Therapists -->
+            <div class="row">
+                <div class="col-12">
+                    <h3>Upcoming Consultations</h3>
+                    {% if upcoming_consultations %}
+                        <ul>
+                            {% for consultation in upcoming_consultations %}
+                                <li>{{ consultation['patient_name'] }} - {{ consultation['date'] }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No upcoming consultations.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

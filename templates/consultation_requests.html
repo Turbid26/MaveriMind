@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Your Consultation Requests</h1>
+
+    <ul>
+        {% for consultation in consultations %}
+            <li>
+                <strong>Therapist:</strong> {{ consultation.fname }} {{ consultation.lname }}<br>
+                <strong>Status:</strong> {{ consultation.status }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('therapists') }}" class="btn btn-secondary mt-3">Back to Therapists List</a>
+{% endblock %}

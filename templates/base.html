@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <a class="navbar-brand" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                {% if 'email' in session %}
+                    {% if session['role'] == 'Patient' %}
+                        <!-- Patient-specific Links -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/forum">Forum</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/therapists">Therapists</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ongoing_consultation">Ongoing Consultation</a>
+                        </li>
+                    {% elif session['role'] == 'Therapist' %}
+                        <!-- Therapist-specific Links -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="/forum">Forum</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/upcoming_consultations">Upcoming Consultations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/consultation_requests">Consultation Requests</a>
+                        </li>
+                    {% endif %}
+                    <!-- Links visible to both Patient and Therapist -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chat">Chat with AI</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                {% else %}
+                    <!-- Links visible to unauthenticated users -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user_login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user_signup">Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Content of the page (this will be replaced by specific pages) -->
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
