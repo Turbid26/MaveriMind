@@ -5,6 +5,8 @@ import sqlite3
 from flask_session import Session
 from datetime import datetime
 from db import init_db
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -12,6 +14,10 @@ Bootstrap(app)
 app.config['SESSION_TYPE'] = 'filesystem' 
 app.config['SESSION_PERMANENT'] = False
 Session(app)
+
+model_name = "microsoft/DialoGPT-medium"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 @app.route('/')
 def index():
@@ -99,15 +105,36 @@ def user_login():
             user = cur.fetchone()
 
             if user and bcrypt.checkpw(password.encode('utf-8'), user[5]):  # Check hashed password
-                
-                
                 flash('Login successful!', 'success')
+                print("in")
                 session['role'] = 'Patient'
                 return redirect('/home')  # Redirect to home page
             else:
                 flash('Invalid credentials. Please try again.', 'danger')
 
     return render_template('user_login.html')
+
+
+@app.route('/chat_with_ai', methods=['GET', 'POST'])
+def chat_with_ai():
+    if request.method == 'POST':
+        user_input = request.form['message']
+
+        # Encode the new user input, add the eos_token and return a tensor in Pytorch
+        new_user_input_ids = tokenizer.encode(user_input + tokenizer.eos_token, return_tensors='pt')
+
+        # Append the new user input tokens to the chat history
+        bot_input_ids = new_user_input_ids
+
+        # Generate a response from the model
+        chat_history_ids = model.generate(bot_input_ids, max_length=1000, pad_token_id=tokenizer.eos_token_id)
+
+        # Get the predicted response (excluding the user's input)
+        bot_response = tokenizer.decode(chat_history_ids[:, new_user_input_ids.shape[-1]:][0], skip_special_tokens=True)
+
+        return render_template('chat_with_ai.html', ai_message=bot_response, user_input=user_input)
+
+    return render_template('chat_with_ai.html', ai_message=None)
 
 @app.route('/t_login', methods=['GET', 'POST'])
 def t_login():

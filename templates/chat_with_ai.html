@@ -1,37 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-</head>
-<body>
-    <div class="container mt-5">
-        <h2>Chat with AI</h2>
+{% extends 'base.html' %}
 
-        <form method="POST">
-            <div class="form-group">
-                <label for="user_input">Your Message:</label>
-                <textarea class="form-control" id="user_input" name="user_input" rows="3" required>{{ request.form.get('user_input', '') }}</textarea>
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Send</button>
-        </form>
+{% block content %}
+    <h1>Chat with AI (Therapy Substitute)</h1>
 
-        {% if severity is not none %}
-            <div class="mt-4">
-                <h4>Sentiment: 
-                    {% if severity == 5 %}
-                        Neutral
-                    {% elif severity < 5 %}
-                        Positive
-                    {% else %}
-                        Negative
-                    {% endif %}
-                </h4>
-                <h5>Severity Level: {{ severity }}</h5>
-            </div>
-        {% endif %}
-    </div>
-</body>
-</html>
+    <form action="{{ url_for('chat_with_ai') }}" method="POST">
+        <div class="form-group">
+            <textarea name="message" rows="4" class="form-control" placeholder="How can I help you today?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Send</button>
+    </form>
+
+    {% if ai_message %}
+        <div class="mt-4">
+            <h4>Your Input:</h4>
+            <p>{{ user_input }}</p>
+            <h4>AI Response:</h4>
+            <p>{{ ai_message }}</p>
+        </div>
+    {% endif %}
+{% endblock %}
